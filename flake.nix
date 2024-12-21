@@ -44,7 +44,7 @@
     });
 
     packages = forEachSystem (system: {
-      default =
+      rust =
         (pkgsFor.${system}.callPackage naersk {
           inherit (rust-toolchain.${system}) cargo rustc;
         })
@@ -54,9 +54,9 @@
     });
 
     apps = forEachSystem (system: {
-      default = {
+      rust = {
         type = "app";
-        program = "${self.packages.${system}.default}/bin/rust";
+        program = "${self.packages.${system}.default}/bin/mp2ec";
       };
     });
   };
