@@ -49,14 +49,27 @@
           inherit (rust-toolchain.${system}) cargo rustc;
         })
         .buildPackage {
-          src = ./.;
+          src = ./rust;
         };
+      cpp = pkgsFor.${system}.stdenv.mkDerivation {
+        pname = "cpp";
+        version = "0.1.0";
+        src = ./rust;
+
+        nativeBuildInputs = with pkgsFor.${system}; [
+          cmake
+        ];
+      };
     });
 
     apps = forEachSystem (system: {
       rust = {
         type = "app";
-        program = "${self.packages.${system}.default}/bin/mp2ec";
+        program = "${self.packages.${system}.rust}/bin/mp2ec";
+      };
+      cpp = {
+        type = "app";
+        program = "${self.packages.${system}.cpp}/bin/mp2ec";
       };
     });
   };
