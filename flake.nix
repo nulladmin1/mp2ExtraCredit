@@ -1,75 +1,51 @@
 {
-  description = "Nix Flake Template for Rust using Fenix and Naersk";
+  description = "Nix Flake Template for C++";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
     systems.url = "github:nix-systems/default";
-    naersk.url = "github:nix-community/naersk";
-    fenix = {
-      url = "github:nix-community/fenix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
   outputs = {
     self,
     nixpkgs,
-    naersk,
-    fenix,
     systems,
     ...
   }: let
     forEachSystem = nixpkgs.lib.genAttrs (import systems);
-    pkgsFor = forEachSystem (system:
-      import nixpkgs {
-        inherit system;
-        overlays = [
-          fenix.overlays.default
-        ];
-      });
-    rust-toolchain = forEachSystem (system: pkgsFor.${system}.fenix.stable);
+    pkgsFor = forEachSystem (system: import nixpkgs {inherit system;});
   in {
     formatter = forEachSystem (system: pkgsFor.${system}.alejandra);
 
     devShells = forEachSystem (system: {
       default = pkgsFor.${system}.mkShell {
-        packages = with rust-toolchain.${system}; [
-          cargo
-          rustc
-          clippy
-          rustfmt
+        packages = with pkgsFor.${system}; [
+          libllvm
+          cmake
+          gtest
         ];
-        RUST_SRC_PATH = "${rust-toolchain.${system}.rust-src}/lib/rustlib/src/rust/library";
       };
     });
 
     packages = forEachSystem (system: {
-      rust =
-        (pkgsFor.${system}.callPackage naersk {
-          inherit (rust-toolchain.${system}) cargo rustc;
-        })
-        .buildPackage {
-          src = ./rust;
-        };
-      cpp = pkgsFor.${system}.stdenv.mkDerivation {
+      default = pkgsFor.${system}.stdenv.mkDerivation {
         pname = "cpp";
         version = "0.1.0";
-        src = ./rust;
+        src = ./.;
 
         nativeBuildInputs = with pkgsFor.${system}; [
           cmake
+        ];
+        buildInputs = with pkgsFor.${system}; [
+          gtest
         ];
       };
     });
 
     apps = forEachSystem (system: {
-      rust = {
+      default = {
         type = "app";
-        program = "${self.packages.${system}.rust}/bin/mp2ec";
-      };
-      cpp = {
-        type = "app";
-        program = "${self.packages.${system}.cpp}/bin/mp2ec";
+        program = "${self.packages.${system}.default}/bin/hello";
       };
     });
   };
