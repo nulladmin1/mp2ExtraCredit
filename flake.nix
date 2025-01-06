@@ -29,7 +29,7 @@
 
     packages = forEachSystem (system: {
       default = pkgsFor.${system}.stdenv.mkDerivation {
-        pname = "cpp";
+        pname = "mp2ec";
         version = "0.1.0";
         src = ./.;
 
@@ -45,7 +45,7 @@
     apps = forEachSystem (system: {
       default = {
         type = "app";
-        program = "${self.packages.${system}.default}/bin/hello";
+        program = "${self.packages.${system}.default}/bin/mp2ec";
       };
     });
   };
