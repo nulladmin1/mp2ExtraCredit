@@ -22,7 +22,7 @@ void printMatrix(vector<vector<CellStatus>>);
 // Function to solve the thing
 void simulatePlague(vector<vector<CellStatus>> &, int);
 void infectSingularCell(vector<vector<CellStatus>> &, int, int);
-
+int calculateInfectedCells(vector<vector<CellStatus>> &);
 
 // Main function
 int main() {
@@ -64,6 +64,7 @@ int main() {
   simulatePlague(matrix, T);
   printMatrix(matrix);
   
+  cout << "Number of Infected Cells: " << calculateInfectedCells(matrix) << endl;
   return 0;
 }
 
@@ -149,4 +150,17 @@ void infectSingularCell(vector<vector<CellStatus>> &v, int i, int j) {
   if (j < v.size() - 1 && v.at(i).at(j + 1) == Uninfected) {
     v.at(i).at(j + 1) = NewlyInfected;
   }
+}
+
+int calculateInfectedCells(vector<vector<CellStatus>> &v) {
+  int sum = 0;
+  for (int i = 0; i < v.size(); i++) {
+    for (int j = 0; j < v[i].size(); j++) {
+      // If infected cell, infect the nearby elements using the infectSingularCell function
+      if (v[i][j] == Infected || v[i][j] == NewlyInfected) {
+        sum++;
+      }
+    }
+  }
+  return sum;
 }
