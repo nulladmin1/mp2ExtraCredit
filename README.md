@@ -1,1 +1,1 @@
-# MP2 Extra Credit (in Rust and C++)
+# MP2 Extra Credit (C++)
